@@ -1,0 +1,231 @@
+#mpg
+
+from google.colab import drive
+drive.mount('/content/drive')
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import os
+file_path = '/content/drive/My Drive/ML/auto-mpg.csv'
+df = pd.read_csv(file_path)
+print("Initial Dataset Preview:")
+print(df.to_string())
+print("\nMissing Values in Each Column:")
+print(df.isnull().sum())
+df = df.dropna(subset=['mpg'])
+df['mpg'] = pd.to_numeric(df['mpg'], errors='coerce')
+mean_mpg = df['mpg'].mean()
+median_mpg = df['mpg'].median()
+mode_mpg = df['mpg'].mode().iloc[0]  
+std_mpg = df['mpg'].std()
+var_mpg = df['mpg'].var()
+print("\n--- Central Tendency Measures for 'mpg' ---")
+print(f"Mean: {mean_mpg:.2f}")
+print(f"Median: {median_mpg:.2f}")
+print(f"Mode: {mode_mpg:.2f}")
+print("\n--- Spread Measures for 'mpg' ---")
+print(f"Standard Deviation: {std_mpg:.2f}")
+print(f"Variance: {var_mpg:.2f}")
+print("\n--- Summary Statistics ---")
+print(df.describe())
+plt.figure(figsize=(12, 5))
+plt.subplot(1, 2, 1)
+sns.histplot(df['mpg'], bins=20, kde=True)
+plt.title('Histogram of MPG')
+plt.subplot(1, 2, 2)
+sns.boxplot(x=df['mpg'])
+plt.title('Box Plot of MPG')
+plt.tight_layout()
+plt.show()
+
+
+
+
+#vis_plots
+
+from google.colab import drive
+drive.mount('/content/drive')
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+file_path = '/content/drive/My Drive/ML/auto-mpg.csv'
+df = pd.read_csv(file_path)
+print(df.head())
+df.dropna(inplace=True)
+sns.set(style="whitegrid")
+plt.figure(figsize=(8, 6))
+sns.histplot(df['mpg'], bins=20, kde=True)
+plt.title('Distribution of MPG')
+plt.xlabel('MPG')
+plt.ylabel('Frequency')
+plt.show()
+
+plt.figure(figsize=(8, 6))
+sns.boxplot(x=df['mpg'])
+plt.title('Box Plot of MPG')
+plt.show()
+
+plt.figure(figsize=(8, 6))
+sns.scatterplot(x='weight', y='mpg', data=df)
+plt.title('MPG vs Weight')
+plt.xlabel('Weight')
+plt.ylabel('MPG')
+plt.show()
+
+sns.pairplot(df)
+plt.show()
+
+plt.figure(figsize=(8, 6))
+sns.violinplot(x='origin', y='mpg', data=df)
+plt.title('Violin Plot of MPG by Origin')
+plt.show()
+
+plt.figure(figsize=(10, 8))
+numeric_df = df.select_dtypes(include=[np.number])
+sns.clustermap(numeric_df.corr(), annot=True, cmap='coolwarm')
+plt.title('Cluster Map of Feature Correlations')
+plt.show()
+
+df['horsepower'].replace('?', np.nan, inplace=True)
+df['horsepower'] = pd.to_numeric(df['horsepower'], errors='coerce')
+df.dropna(subset=['horsepower'], inplace=True)
+
+sns.lmplot(x='horsepower', y='mpg', data=df, height=6, aspect=1.2)
+plt.title('Linear Regression Plot: Horsepower vs MPG')
+plt.show()
+
+plt.figure(figsize=(10, 8))
+sns.heatmap(numeric_df.corr(), annot=True, cmap='YlGnBu', fmt='.2f')
+plt.title('Heatmap of Feature Correlations')
+plt.show()
+
+sns.jointplot(x='displacement', y='mpg', data=df, kind='hex', height=8, color='purple')
+plt.suptitle('Joint Plot of Displacement vs MPG', y=1.02)
+plt.show()
+
+plt.figure(figsize=(8, 6))
+sns.barplot(x='origin', y='mpg', data=df, estimator=np.mean)
+plt.title('Average MPG by Origin')
+plt.show()
+
+plt.figure(figsize=(8, 6))
+sns.countplot(x='cylinders', data=df)
+plt.title('Count of Cars by Cylinder Number')
+plt.show()
+
+plt.figure(figsize=(10, 6))
+sns.swarmplot(x='cylinders', y='mpg', data=df.sample(200, random_state=1))
+plt.title('Swarm Plot of MPG by Cylinders')
+plt.show()
+
+plt.figure(figsize=(10, 6))
+sns.stripplot(x='cylinders', y='mpg', data=df, jitter=True)
+plt.title('Strip Plot of MPG by Cylinders')
+plt.show()
+
+plt.figure(figsize=(8, 6))
+sns.kdeplot(df['acceleration'], shade=True)
+plt.title('KDE Plot of Acceleration')
+plt.show()
+
+plt.figure(figsize=(8, 6))
+sns.kdeplot(x='weight', y='mpg', data=df, cmap="Reds", shade=True)
+plt.title('2D KDE Plot: Weight vs MPG')
+plt.show()
+
+plt.figure(figsize=(8, 6))
+sns.boxenplot(x='cylinders', y='mpg', data=df)
+plt.title('Boxen Plot of MPG by Cylinders')
+plt.show()
+
+
+
+
+
+#k-NN
+
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score
+from sklearn.datasets import load_iris
+
+iris = load_iris()
+features = iris.data
+labels = iris.target
+
+features_train, features_test, labels_train, labels_test = train_test_split(features, labels, test_size=0.2, random_state=42)
+
+knn = KNeighborsClassifier(n_neighbors=3)
+knn.fit(features_train, labels_train)
+
+predictions = knn.predict(features_test)
+
+accuracy = accuracy_score(labels_test, predictions)
+print("Accuracy of the k-NN Classifier:", accuracy)
+
+
+
+
+
+#binary classification
+
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+
+diabetes_data = pd.read_csv("/content/diabetes.csv")
+print(diabetes_data.head())
+
+features = diabetes_data.drop('Outcome', axis=1)
+labels = diabetes_data['Outcome']
+
+features_train, features_test, labels_train, labels_test = train_test_split(features, labels, test_size=0.2, random_state=42)
+
+model = LogisticRegression(max_iter=1000)
+model.fit(features_train, labels_train)
+
+predictions = model.predict(features_test)
+
+accuracy = accuracy_score(labels_test, predictions)
+confusion = confusion_matrix(labels_test, predictions)
+report = classification_report(labels_test, predictions)
+
+print("Accuracy of the classifier:", accuracy)
+print("Confusion Matrix:\n", confusion)
+print("Classification Report:\n", report)
+
+
+
+#SVM
+
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+from sklearn.datasets import load_breast_cancer
+
+cancer_data = load_breast_cancer()
+features = pd.DataFrame(cancer_data.data, columns=cancer_data.feature_names)
+labels = pd.Series(cancer_data.target)
+
+features_train, features_test, labels_train, labels_test = train_test_split(features, labels, test_size=0.2, random_state=42)
+
+model = SVC(kernel="linear")
+model.fit(features_train, labels_train)
+
+predictions = model.predict(features_test)
+
+accuracy = accuracy_score(labels_test, predictions)
+confusion = confusion_matrix(labels_test, predictions)
+report = classification_report(labels_test, predictions)
+
+print("Accuracy of the SVM classifier:", accuracy)
+print("Confusion Matrix:\n", confusion)
+print("Classification Report:\n", report)
