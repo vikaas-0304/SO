@@ -190,3 +190,192 @@ chmod +x string_processing.sh
 
 
 
+
+#dead
+
+
+def bankers_algorithm(processes, available, max_need, allocation):
+    n, m = len(processes), len(available)
+    need = [[max_need[i][j] - allocation[i][j] for j in range(m)] for i in range(n)]
+    finish = [False]*n
+    safe_seq = []
+    work = available[:]
+    while len(safe_seq) < n:
+        found = False
+        for i in range(n):
+            if not finish[i] and all(need[i][j] <= work[j] for j in range(m)):
+                work = [work[j] + allocation[i][j] for j in range(m)]
+                finish[i] = True
+                safe_seq.append(i)
+                found = True
+        if not found: break
+    return safe_seq if len(safe_seq) == n else None
+
+def wait_for_graph_detection(wait_for):
+    visited, rec_stack = set(), set()
+    def dfs(node):
+        visited.add(node); rec_stack.add(node)
+        for nei in wait_for.get(node, []):
+            if nei not in visited and dfs(nei): return True
+            elif nei in rec_stack: return True
+        rec_stack.remove(node); return False
+    return any(dfs(node) for node in wait_for if node not in visited)
+
+n, m = map(int, input("Enter no. of processes and resources: ").split())
+available = list(map(int, input("Enter available resources: ").split()))
+max_need, allocation = [], []
+for i in range(n):
+    max_need.append(list(map(int, input(f"Max need of P{i}: ").split())))
+for i in range(n):
+    allocation.append(list(map(int, input(f"Allocation of P{i}: ").split())))
+
+safe = bankers_algorithm(list(range(n)), available, max_need, allocation)
+print("Safe sequence:" , safe if safe else "No Safe Sequence")
+
+edges = int(input("Enter no. of edges in Wait-for graph: "))
+wait_for = {}
+for _ in range(edges):
+    u, v = map(int, input("Edge u v: ").split())
+    wait_for.setdefault(u, []).append(v)
+print("Deadlock Detected?", wait_for_graph_detection(wait_for))
+
+
+
+
+#mem
+
+def first_fit(blocks, processes):
+    alloc = [-1]*len(processes)
+    for i, p in enumerate(processes):
+        for j, b in enumerate(blocks):
+            if b >= p:
+                alloc[i], blocks[j] = j, b-p
+                break
+    return alloc
+
+def best_fit(blocks, processes):
+    alloc = [-1]*len(processes)
+    for i, p in enumerate(processes):
+        best = -1
+        for j, b in enumerate(blocks):
+            if b >= p and (best == -1 or blocks[j] < blocks[best]):
+                best = j
+        if best != -1:
+            alloc[i], blocks[best] = best, blocks[best]-p
+    return alloc
+
+def worst_fit(blocks, processes):
+    alloc = [-1]*len(processes)
+    for i, p in enumerate(processes):
+        worst = -1
+        for j, b in enumerate(blocks):
+            if b >= p and (worst == -1 or blocks[j] > blocks[worst]):
+                worst = j
+        if worst != -1:
+            alloc[i], blocks[worst] = worst, blocks[worst]-p
+    return alloc
+
+n = int(input("Enter no. of blocks: "))
+blocks = list(map(int, input("Enter block sizes: ").split()))
+m = int(input("Enter no. of processes: "))
+processes = list(map(int, input("Enter process sizes: ").split()))
+
+print("First Fit:", first_fit(blocks[:], processes))
+print("Best Fit:", best_fit(blocks[:], processes))
+print("Worst Fit:", worst_fit(blocks[:], processes))
+
+
+
+#rep
+
+def fifo(pages, capacity):
+    frame, faults = [], 0
+    for p in pages:
+        if p not in frame:
+            faults += 1
+            if len(frame) < capacity: frame.append(p)
+            else: frame.pop(0); frame.append(p)
+    return faults
+
+def lru(pages, capacity):
+    frame, faults = [], 0
+    for i, p in enumerate(pages):
+        if p not in frame:
+            faults += 1
+            if len(frame) < capacity: frame.append(p)
+            else:
+                lru_index = min(range(len(frame)), key=lambda x: pages[:i][::-1].index(frame[x]) if frame[x] in pages[:i] else i)
+                frame[lru_index] = p
+    return faults
+
+def optimal(pages, capacity):
+    frame, faults = [], 0
+    for i, p in enumerate(pages):
+        if p not in frame:
+            faults += 1
+            if len(frame) < capacity: frame.append(p)
+            else:
+                future = {f: (pages[i+1:].index(f) if f in pages[i+1:] else float('inf')) for f in frame}
+                victim = max(future, key=future.get)
+                frame[frame.index(victim)] = p
+    return faults
+
+pages = list(map(int, input("Enter page reference string: ").split()))
+cap = int(input("Enter frame capacity: "))
+
+print("FIFO Page Faults:", fifo(pages, cap))
+print("LRU Page Faults:", lru(pages, cap))
+print("Optimal Page Faults:", optimal(pages, cap))
+
+
+
+
+#disk
+
+def fcfs(req, head):
+    dist = 0
+    for r in req:
+        dist += abs(head - r)
+        head = r
+    return dist
+
+def sstf(req, head):
+    dist, req = 0, req[:]
+    while req:
+        nearest = min(req, key=lambda x: abs(x-head))
+        dist += abs(head - nearest)
+        head = nearest
+        req.remove(nearest)
+    return dist
+
+def scan(req, head, disk_size):
+    req = sorted(req+[0, disk_size-1])
+    idx = [i for i,v in enumerate(req) if v>=head][0]
+    order = req[idx:]+req[:idx][::-1]
+    dist, cur = 0, head
+    for r in order:
+        dist += abs(cur-r); cur = r
+    return dist
+
+def cscan(req, head, disk_size):
+    req = sorted(req+[0, disk_size-1])
+    idx = [i for i,v in enumerate(req) if v>=head][0]
+    order = req[idx:]+req[:idx]
+    dist, cur = 0, head
+    for r in order:
+        dist += abs(cur-r); cur = r
+    return dist
+
+n = int(input("Enter number of requests: "))
+req = list(map(int, input("Enter request sequence: ").split()))
+head = int(input("Enter initial head position: "))
+disk_size = int(input("Enter disk size: "))
+
+print("FCFS:", fcfs(req, head))
+print("SSTF:", sstf(req, head))
+print("SCAN:", scan(req, head, disk_size))
+print("C-SCAN:", cscan(req, head, disk_size))
+
+
+
+#
