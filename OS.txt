@@ -1,3 +1,47 @@
+CPU
+
+print("MLFQ Scheduling (Optimized)")
+n = int(input("Enter number of processes: "))
+processes, queues, log = [], [[], [], []], []
+quantums = [4, 6, None]
+
+for i in range(n):
+    pid = input(f"PID {i+1}: ")
+    at = int(input(f"Arrival Time of {pid}: "))
+    bt = int(input(f"Burst Time of {pid}: "))
+    processes.append({'pid': pid, 'at': at, 'bt': bt, 'rem': bt})
+
+time, done = 0, 0
+while done < n:
+    ready = [p for p in processes if p['at'] <= time and p['rem'] > 0]
+    if not ready and not any(queues): time += 1; continue
+
+    # Queue 1
+    for p in ready:
+        run = min(quantums[0], p['rem'])
+        log.append(f"Time {time} - {p['pid']} ran {run} units in Q1")
+        p['rem'] -= run; time += run
+        if p['rem'] == 0: done += 1
+        else: queues[1].append(p)
+        processes.remove(p)
+
+    # Queue 2 and 3 (looping to avoid repetition)
+    for i in [1, 2]:
+        for p in queues[i][:]:
+            run = p['rem'] if quantums[i] is None else min(quantums[i], p['rem'])
+            log.append(f"Time {time} - {p['pid']} ran {run} units in Q{i+1}")
+            p['rem'] -= run; time += run
+            if p['rem'] == 0: done += 1
+            elif i < 2: queues[i+1].append(p)
+            queues[i].remove(p)
+
+print("\n--- Execution Log ---")
+print("\n".join(log))
+
+
+
+
+
 5) String Processing
 
 echo "hello world" | tr 'a-z' 'A-Z'
@@ -208,6 +252,7 @@ print("FCFS:", fcfs(req, head))
 print("SSTF:", sstf(req, head))
 print("SCAN:", scan(req, head, disk_size))
 print("C-SCAN:", cscan(req, head, disk_size))
+
 
 
 
