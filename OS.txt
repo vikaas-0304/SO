@@ -1,22 +1,21 @@
 5) String Processing
 
-echo "Pattern Matching and String Processing"
 echo "hello world" | tr 'a-z' 'A-Z'
-echo "one two two three" | uniq
-sort file.txt
-cut -d":" -f1 /etc/passwd
-grep "error" logfile.txt
-grep -i "error" logfile.txt
-grep -n "root" /etc/passwd
-egrep "cat|dog" file.txt
-grep -v "success" logfile.txt
-sed 's/foo/bar/g' file.txt
-sed -n '2,5p' file.txt
-awk '{print $1,$3}' file.txt
-awk '/error/ {print $0}' logfile.txt
-grep "^[0-9]" data.txt
-grep "[A-Z]$" data.txt
-grep -E "[0-9]{3}-[0-9]{2}-[0-9]{4}" data.txt
+echo -e "one\ntwo\ntwo\nthree" | uniq
+echo -e "c\na\nb" | sort
+echo "user:x:1000:1000:User:/home/user:/bin/bash" | cut -d":" -f1
+echo -e "error\nok\nerror" | grep "error"
+echo -e "Error\nok\nERROR" | grep -i "error"
+echo -e "root:x:0:0:root:/root:/bin/bash" | grep -n "root"
+echo -e "cat\ndog\nfish" | egrep "cat|dog"
+echo -e "success\nfail\nsuccess" | grep -v "success"
+echo -e "foo bar\nfoo foo\nbar foo" | sed 's/foo/bar/g'
+echo -e "line1\nline2\nline3\nline4\nline5" | sed -n '2,5p'
+echo -e "one 1 three\nfour 2 six" | awk '{print $1,$3}'
+echo -e "error found\nok done" | awk '/error/ {print $0}'
+echo -e "123abc\nabc123\n456" | grep "^[0-9]"
+echo -e "abcX\nxyzZ\nhello" | grep "[A-Z]$"
+echo -e "111-22-3333\nabc-def\n999-88-7777" | grep -E "[0-9]{3}-[0-9]{2}-[0-9]{4}"
 
 
 
@@ -218,4 +217,5 @@ print("FCFS:", fcfs(req, head))
 print("SSTF:", sstf(req, head))
 print("SCAN:", scan(req, head, disk_size))
 print("C-SCAN:", cscan(req, head, disk_size))
+
 
