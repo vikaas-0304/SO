@@ -24,52 +24,43 @@ echo -e "111-22-3333\nabc-def\n999-88-7777" | grep -E "[0-9]{3}-[0-9]{2}-[0-9]{4
 
 6) Deadlock
 
-def bankers_algorithm(processes, available, max_need, allocation):
-    n, m = len(processes), len(available)
+def bankers_algorithm(n, m, available, max_need, allocation):
     need = [[max_need[i][j] - allocation[i][j] for j in range(m)] for i in range(n)]
-    finish = [False]*n
-    safe_seq = []
-    work = available[:]
+    finish = [False] * n
+    safe_seq, work = [], available[:]
     while len(safe_seq) < n:
         found = False
         for i in range(n):
             if not finish[i] and all(need[i][j] <= work[j] for j in range(m)):
                 work = [work[j] + allocation[i][j] for j in range(m)]
-                finish[i] = True
-                safe_seq.append(i)
-                found = True
+                finish[i], safe_seq, found = True, safe_seq + [i], True
         if not found: break
     return safe_seq if len(safe_seq) == n else None
-
 def wait_for_graph_detection(wait_for):
-    visited, rec_stack = set(), set()
+    visited, stack = set(), set()
     def dfs(node):
-        visited.add(node); rec_stack.add(node)
+        visited.add(node); stack.add(node)
         for nei in wait_for.get(node, []):
             if nei not in visited and dfs(nei): return True
-            elif nei in rec_stack: return True
-        rec_stack.remove(node); return False
+            if nei in stack: return True
+        stack.remove(node); return False
     return any(dfs(node) for node in wait_for if node not in visited)
-
-n, m = map(int, input("Enter no. of processes and resources: ").split())
+n = int(input("Enter number of processes: "))
+m = int(input("Enter number of resources: "))
 available = list(map(int, input("Enter available resources: ").split()))
 max_need, allocation = [], []
 for i in range(n):
     max_need.append(list(map(int, input(f"Max need of P{i}: ").split())))
 for i in range(n):
     allocation.append(list(map(int, input(f"Allocation of P{i}: ").split())))
-
-safe = bankers_algorithm(list(range(n)), available, max_need, allocation)
-print("Safe sequence:" , safe if safe else "No Safe Sequence")
-
-edges = int(input("Enter no. of edges in Wait-for graph: "))
+safe = bankers_algorithm(n, m, available, max_need, allocation)
+print("Safe sequence:", safe if safe else "No Safe Sequence")
+edges = int(input("Enter edges in Wait-for graph: "))
 wait_for = {}
 for _ in range(edges):
     u, v = map(int, input("Edge u v: ").split())
     wait_for.setdefault(u, []).append(v)
 print("Deadlock Detected?", wait_for_graph_detection(wait_for))
-
-
 
 
 
@@ -217,5 +208,6 @@ print("FCFS:", fcfs(req, head))
 print("SSTF:", sstf(req, head))
 print("SCAN:", scan(req, head, disk_size))
 print("C-SCAN:", cscan(req, head, disk_size))
+
 
 
