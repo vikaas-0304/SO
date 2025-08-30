@@ -1,179 +1,14 @@
-#CPU
-
-def round_robin(processes, burst_times, quantum):
-    n = len(processes)
-    remaining_bt = burst_times.copy()
-    time = 0
-    waiting_times = [0] * n
-    turnaround_times = [0] * n
-
-    while True:
-        all_done = True
-
-        for i in range(n):
-            if remaining_bt[i] > 0:
-                all_done = False
-
-                if remaining_bt[i] > quantum:
-                    time += quantum
-                    remaining_bt[i] -= quantum
-                else:
-                    time += remaining_bt[i]
-                    waiting_times[i] = time - burst_times[i]
-                    remaining_bt[i] = 0
-
-        if all_done:
-            break
-
-    for i in range(n):
-        turnaround_times[i] = burst_times[i] + waiting_times[i]
-
-    print("Process\tBurst Time\tWaiting Time")
-    for i in range(n):
-        print(f"P{processes[i]}\t\t{burst_times[i]}\t\t{waiting_times[i]}\t\t{turnaround_times[i]}")
-
-    avg_waiting = sum(waiting_times) / n
-    avg_turnaround = sum(turnaround_times) / n
-
-    print(f"\nAverage Waiting Time = {avg_waiting:.2f}")
-    print(f"Average Turnaround Time = {avg_turnaround:.2f}")
-processes = [1, 2, 3, 4]
-burst_times = [5, 15, 4, 3]
-quantum = 3
-
-round_robin(processes, burst_times, quantum)
-
-
-
-
-
-
-
-
-
-#CMD
-
-pwd  
-ls  
-ls -l  
-ls -a  
-cd <path>  
-cd ..  
-mkdir <dir>  
-rmdir <dir>  
-touch <file>  
-cat <file>  
-nano <file>  
-cp <src> <dest>  
-mv <src> <dest>  
-rm <file>  
-rm -r <dir>  
-uname -a  
-hostname  
-whoami  
-who  
-uptime  
-df -h  
-free -h  
-ps  
-ps aux  
-top  
-kill <pid>  
-ip a  
-ping <host>  
-ifconfig  
-netstat -tuln  
-clear  
-history  
-exit
-
-
-
-
-
-
-
-
-
-#Dir&File
-
-echo "Directories and File Management"
-echo "Enter new directory name:"
-read newdir
-mkdir "$newdir"
-echo "The Current Working Directory:"
-pwd
-echo "Enter the new filename:"
-read newfile
-echo "Enter the contents for the file. Press Ctrl+D when done."
-cat > "$newfile"
-echo "Create an empty file"
-echo "Enter the filename:"
-read cpfile
-touch "$cpfile"
-echo "Copying contents from $newfile to $cpfile"
-cp "$newfile" "$cpfile"
-echo "Listing all files and directories:"
-ls -l
-echo "Delete a file"
-echo "Enter the filename to delete:"
-read fn
-rm -i "$fn"
-echo "Files after deletion:"
-ls -l
-echo "Remove a directory"
-echo "Enter the directory name to remove:"
-read rdir
-rmdir "$rdir"
-echo "Remaining directories:"
-ls -d */ 2>/dev/null
-
-
-
-
-
-
-
-#pipes
-
-#!/bin/sh
-
-echo -e "apple\nbanana\ncherry\napple\nbanana\ndate" > fruits.txt
-cat fruits.txt
-cat fruits.txt | sort | uniq | wc -l
-cat fruits.txt | sort | uniq > unique_fruits.txt
-cat unique_fruits.txt
-echo "elderberry" >> unique_fruits.txt
-cat unique_fruits.txt
-grep "apple" fruits.txt
-cat fruits.txt | grep "a" | sort | uniq > fruits_with_a.txt
-cat fruits_with_a.txt
-
-
-
-
-
-
-#String Processing
-
-nano string_processing.sh
-
-#!/bin/bash
+5) String Processing
 
 echo "Pattern Matching and String Processing"
-
 echo -e "the sun rises in the east\nthe moon is bright\nthe sky is blue" > file1
-
 wc -c file1
-
 wc -w file1
-
 string1="linux"
 string2="hint"
 string3="$string1$string2"
 string3="$string3 is a good tutorial blog site"
 echo "$string3"
-
 echo "Get substring of strings:"
 str="learn linux from linuxhint"
 subStr=${str:6:5}
@@ -184,15 +19,9 @@ grep -c "the" file1
 
 
 
-chmod +x string_processing.sh
-
-./string_processing.sh
 
 
-
-
-#dead
-
+6) Deadlock
 
 def bankers_algorithm(processes, available, max_need, allocation):
     n, m = len(processes), len(available)
@@ -242,7 +71,11 @@ print("Deadlock Detected?", wait_for_graph_detection(wait_for))
 
 
 
-#mem
+
+
+
+
+7) Memory Allocation
 
 def first_fit(blocks, processes):
     alloc = [-1]*len(processes)
@@ -286,7 +119,12 @@ print("Worst Fit:", worst_fit(blocks[:], processes))
 
 
 
-#rep
+
+
+
+
+
+8) Page Replacement
 
 def fifo(pages, capacity):
     frame, faults = [], 0
@@ -330,7 +168,10 @@ print("Optimal Page Faults:", optimal(pages, cap))
 
 
 
-#disk
+
+
+
+9) Disk Scheduling
 
 def fcfs(req, head):
     dist = 0
@@ -375,7 +216,3 @@ print("FCFS:", fcfs(req, head))
 print("SSTF:", sstf(req, head))
 print("SCAN:", scan(req, head, disk_size))
 print("C-SCAN:", cscan(req, head, disk_size))
-
-
-
-#
