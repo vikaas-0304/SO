@@ -236,36 +236,80 @@ print("Classification Report:\n", report)
 #LinearReg
 
 import pandas as pd
+import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_squared_error,r2_score
-from google.colab import drive
-drive.mount('/content/drive')
-df=pd.read_csv('/content/drive/MyDrive/ML/california_housing.csv')
-X=df.drop('median_house_value',axis=1)
-y=df['median_house_value']
-X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.2,random_state=42)
-model=LinearRegression()
-model.fit(X_train,y_train)
-y_pred=model.predict(X_test)
-print(r2_score(y_test,y_pred))
-print(mean_squared_error(y_test,y_pred))
+from sklearn.metrics import mean_squared_error, r2_score
+
+dataset = pd.read_csv('/content/drive/MyDrive/ML/california_housing.csv')
+print(dataset.head())
+
+features = dataset[['MedInc','AveRooms','AveBedrms']]
+response = dataset['MedHouseVal']
+
+features_train, features_test, response_train, response_test = train_test_split(
+    features, response, test_size=0.2, random_state=42
+)
+
+model = LinearRegression()
+model.fit(features_train, response_train)
+
+predictions = model.predict(features_test)
+
+mse = mean_squared_error(response_test, predictions)
+r2 = r2_score(response_test, predictions)
+
+print("Mean Squared Error:", mse)
+print("R² Score:", r2)
+
+
+
 
 
 
 
 #ANN
 
+import numpy as np
 import tensorflow as tf
+from tensorflow.keras import layers, models
 from tensorflow.keras.datasets import fashion_mnist
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense,Flatten
-(X_train,y_train),(X_test,y_test)=fashion_mnist.load_data()
-X_train,X_test=X_train/255.0,X_test/255.0
-model=Sequential([Flatten(input_shape=(28,28)),Dense(128,activation='relu'),Dense(10,activation='softmax')])
-model.compile(optimizer='adam',loss='sparse_categorical_crossentropy',metrics=['accuracy'])
-model.fit(X_train,y_train,epochs=5,batch_size=32)
-print(model.evaluate(X_test,y_test))
+import matplotlib.pyplot as plt
+
+(train_images, train_labels), (test_images, test_labels) = fashion_mnist.load_data()
+
+train_images = train_images.astype('float32') / 255.0
+test_images = test_images.astype('float32') / 255.0
+
+train_images = train_images.reshape(train_images.shape[0], 28*28)
+test_images = test_images.reshape(test_images.shape[0], 28*28)
+
+model = models.Sequential()
+model.add(layers.Dense(128, activation='relu', input_shape=(28*28,)))
+model.add(layers.Dense(64, activation='relu'))
+model.add(layers.Dense(10, activation='softmax'))
+
+model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+model.fit(train_images, train_labels, epochs=10, batch_size=32)
+
+test_loss, test_acc = model.evaluate(test_images, test_labels)
+print(f"Test accuracy: {test_acc:.4f}")
+
+predictions = model.predict(test_images)
+
+def display_predictions(images, labels, predictions):
+    plt.figure(figsize=(10,10))
+    for i in range(9):
+        plt.subplot(3,3,i+1)
+        plt.imshow(images[i].reshape(28,28), cmap='gray')
+        plt.title(f"True: {labels[i]}\nPredicted: {np.argmax(predictions[i])}")
+        plt.axis('off')
+    plt.show()
+
+display_predictions(test_images, test_labels, predictions)
+
+
+
 
 
 
@@ -273,33 +317,64 @@ print(model.evaluate(X_test,y_test))
 #ANN_XOR
 
 import numpy as np
-from tensorflow.keras.models import Sequential
+from tensorflow.keras import Sequential
 from tensorflow.keras.layers import Dense
-X=np.array([[0,0],[0,1],[1,0],[1,1]])
-y=np.array([0,1,1,0])
-model=Sequential([Dense(4,input_dim=2,activation='relu'),Dense(1,activation='sigmoid')])
-model.compile(optimizer='adam',loss='binary_crossentropy',metrics=['accuracy'])
-model.fit(X,y,epochs=500,verbose=0)
-print(model.predict(X).round())
+
+inputs = np.array([[0,0],[0,1],[1,0],[1,1]])
+outputs = np.array([[0],[1],[1],[0]])
+
+model = Sequential()
+model.add(Dense(2, activation='relu', input_shape=(2,)))
+model.add(Dense(1, activation='sigmoid'))
+
+model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+model.fit(inputs, outputs, epochs=1000, verbose=0)
+
+predictions = model.predict(inputs)
+
+print("Predictions for XOR problem:")
+for i in range(len(inputs)):
+    print(f"Input: {inputs[i]} -> Predicted Output: {predictions[i][0]:.4f} "
+          f"(Threshold: 0.5) -> Class: {1 if predictions[i][0] > 0.5 else 0}")
+
+
 
 
 
 
 #Ridge
 
-from sklearn.datasets import fetch_california_housing
+import pandas as pd
+import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import Ridge
 from sklearn.metrics import mean_squared_error
-data=fetch_california_housing()
-X,y=data.data,data.target
-X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.2,random_state=42)
-model=Ridge(alpha=1.0)
-model.fit(X_train,y_train)
-y_pred=model.predict(X_test)
-print(mean_squared_error(y_test,y_pred))
-sample=[[6,1,1000,3,1,35,2000,1]]
-print(model.predict(sample))
+from sklearn.datasets import fetch_california_housing
+
+california_housing = fetch_california_housing()
+data = pd.DataFrame(california_housing.data, columns=california_housing.feature_names)
+data['MEDV'] = california_housing.target
+print(data.head())
+
+features = data[['MedInc','Population','Latitude']]
+response = data['MEDV']
+
+features_train, features_test, response_train, response_test = train_test_split(
+    features, response, test_size=0.2, random_state=42
+)
+
+model = Ridge(alpha=1.0)
+model.fit(features_train, response_train)
+
+predictions = model.predict(features_test)
+predicted_price = model.predict([[6,10,18]])
+
+mse = mean_squared_error(response_test, predictions)
+print("Mean Squared Error:", mse)
+print("Predicted price for 6-room house:", predicted_price[0])
+
+
+
 
 
 
